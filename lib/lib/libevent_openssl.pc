@@ -1,0 +1,16 @@
+#libevent pkg-config source file
+
+prefix=/usr/local
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libevent_openssl
+Description: libevent_openssl adds openssl-based TLS support to libevent
+Version: 2.2.0-alpha-dev
+Requires: libevent_core
+Conflicts:
+Libs: -L${libdir} -levent_openssl
+Libs.private:  -L/opt/homebrew/Cellar/openssl@3/3.0.8/lib -lssl -lcrypto   
+Cflags: -I${includedir} -I/opt/homebrew/Cellar/openssl@3/3.0.8/include
+
