@@ -7,8 +7,6 @@
 #include "EventHandler.h"
 #include "pcap.h"
 
-#define HEARTBEAT_TIMEOUT 30
-
 EventHandler::~EventHandler() {
     if(eventBase){
         event_base_free(eventBase);
@@ -28,21 +26,11 @@ EventHandler::EventHandler() {
 }
 
 void EventHandler::packetHandler(const u_char *string, unsigned int len) {
-    haveBlock = connectLoss(string, len) ? BLOCK_CONNLOSS : NO_BLOCK;
-
     timeval tv;
-    tv.tv_sec = 5;
+    tv.tv_sec = 3;
     tv.tv_usec = 0;
     noResponse(tv);
-
     haveBlock = strangePackets(string, len) ? BLOCK_STRANGE_PACK : NO_BLOCK;
-}
-
-bool EventHandler::connectLoss(const u_char *string, unsigned int len) {
-    event* connEvent = evtimer_new(eventBase, checkConnect, (connEvent, this));
-    timeval tv = {HEARTBEAT_TIMEOUT, 0};
-    evtimer_add(connEvent, &tv);
-    event_base_dispatch(eventBase);
 }
 
 void EventHandler::noResponse(timeval tv) {
@@ -94,22 +82,15 @@ bool EventHandler::strangePackets(const u_char *string, unsigned int len) {
 
 void EventHandler::onNoResponse(int fd, short event, void *arg) {
     if(arg){
-        Block* block = (Block*)arg;
-        block->BlockEvent(BLOCK_RESPONSE, fd);
+        if (!EventHandler::heartBeat(fd)){
+            Block* block = (Block*)arg;
+            block->BlockEvent(BLOCK_RESPONSE, fd);
+        }
     }
 }
 
-void EventHandler::checkConnect(int fd, short _event, void *arg) {
-    auto* tuple = static_cast<std::tuple<event*, EventHandler*>*>(arg);
-    event* ev = std::get<0>(*tuple);
-    EventHandler* evHandler = std::get<1>(*tuple);
-    event_del(ev);
-    event* heartbeat_event = evtimer_new(evHandler->eventBase, heartBeat, heartbeat_event);
-    timeval heartbeat_timeout = { HEARTBEAT_TIMEOUT, 0 };
-    evtimer_add(heartbeat_event, &heartbeat_timeout);
-}
-
-void EventHandler::heartBeat(int fd, short event, void *arg) {
+bool EventHandler::heartBeat(int fd) {
     auto msg = "\n";
-    send(fd, (void*)&msg, strlen(msg),0);
+    if(auto ret = send(fd, (void*)&msg, strlen(msg),0) < 0) return false;
+    return true;
 }

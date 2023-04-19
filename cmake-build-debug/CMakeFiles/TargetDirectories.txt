@@ -1,0 +1,3 @@
+/Users/daniilhaziev/CLionProjects/goodbyedpi-plus/cmake-build-debug/CMakeFiles/goodbyedpi_plus.dir
+/Users/daniilhaziev/CLionProjects/goodbyedpi-plus/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/daniilhaziev/CLionProjects/goodbyedpi-plus/cmake-build-debug/CMakeFiles/rebuild_cache.dir

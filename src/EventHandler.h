@@ -10,7 +10,6 @@
 
 enum BLOCK_TIPE{
     BLOCK_RESPONSE,
-    BLOCK_CONNLOSS,
     BLOCK_STRANGE_PACK,
     NO_BLOCK
 };
@@ -28,12 +27,8 @@ private:
     event_base* eventBase;
     event_config* eventConfig;
     virtual void noResponse(timeval tv);
-    virtual bool connectLoss(const u_char *string, unsigned len);
     virtual bool strangePackets(const u_char *string, unsigned len);
-
-
-    static void heartBeat(evutil_socket_t fd, short event, void *arg);
-    static void checkConnect(evutil_socket_t fd, short evetn, void *arg);
+    static bool heartBeat(int fd);
     static void onNoResponse(evutil_socket_t fd, short event, void *arg);
 
 public:
